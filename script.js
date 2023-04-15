@@ -1,7 +1,7 @@
 const MARGIN=['m','ml','mr','mb','mt','my','mx'];
 const PADDING=['p','pl','pr','pb','pt','py','px'];
 const DISPLAY=["d-flex","d-inline","d-inline-flex","d-block","d-inline-block"];
-const OVERFLOW = ["overflow-","overflow-y-","overflow-x"];
+const OVERFLOW = "overflow";
 let overflowValue = ["hidden","visible","scroll","auto","none"];
 let breakpoint=["xs","sm","md","lg"];
 
@@ -147,6 +147,35 @@ let getOverflow=(strList)=>{
     });
     // console.log(overflow)
     return overflow;
+}
+
+
+let convertOverflowTO=(OverflowStrClass)=>{
+    let ofx,ofy;
+    let props =getClassList(OverflowStrClass[0]);
+    props.forEach(value=>{
+        let splitProp = splitClassName(value)
+        if (splitProp.length===3){
+            if (splitProp[1]==="x"){
+                ofx=[splitProp[0],splitProp[1],splitProp[2]];
+            }
+            if (splitProp[1]==="y"){
+                ofy=[splitProp[0],splitProp[1],splitProp[2]];
+            }
+        }else if (splitProp.length===2){
+            ofx=[splitProp[0],'x',splitProp[1]];
+            ofy=[splitProp[0],'y',splitProp[1]];
+        }
+    })
+    return [ofx,ofy];
+}
+
+let convertTOOverflow=(x=[],y=[])=>{
+    if (x[2]===y[2]){
+        return [[OVERFLOW,x[2]]];
+    }else {
+        return [x,y];
+    }
 }
 
 function purgeClassNames(...classNames){
