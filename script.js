@@ -1,7 +1,7 @@
 const MARGIN=['m','ml','mr','mb','mt','my','mx'];
 const PADDING=['p','pl','pr','pb','pt','py','px'];
-let display=["d-flex","d-inline","d-inline-flex","d-block","d-inline-block"];
-let overflow = ["overflow-","overflow-y-","overflow-x"];
+const DISPLAY=["d-flex","d-inline","d-inline-flex","d-block","d-inline-block"];
+const OVERFLOW = ["overflow-","overflow-y-","overflow-x"];
 let overflowValue = ["hidden","visible","scroll","auto","none"];
 let breakpoint=["xs","sm","md","lg"];
 
@@ -125,6 +125,28 @@ let getPadding=(strList)=>{
         }
     });
     return paddingList;
+}
+let getLastDisplay=(strList)=>{
+    let data = getClassList(strList);
+    let display;
+    data.forEach(value=>{
+        if (DISPLAY.includes(value)) {
+            display=value;
+        }
+    });
+    return display;
+}
+let getOverflow=(strList)=>{
+    let data = getClassList(strList);
+    let overflow=[];
+    data.forEach(value=>{
+        let prop=splitClassName(value);
+        if ("overflow".includes(prop[0])) {
+            overflow.push(value)
+        }
+    });
+    // console.log(overflow)
+    return overflow;
 }
 
 function purgeClassNames(...classNames){
