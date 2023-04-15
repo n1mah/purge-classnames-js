@@ -58,3 +58,4 @@ function purgeClassNames(...classNames){
 document.getElementById('input').onkeyup = function(){
     document.getElementById('output').innerHTML = purgeClassNames(...this.value.trim().split(/\s+/));
 };
+//Test
