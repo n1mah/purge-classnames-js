@@ -184,14 +184,6 @@ let convertTOOverflow=(x=[],y=[])=>{
     }
 }
 
-let getBreakpoints=(str)=>{
-    if (str.includes(BREAKPOINT[0]) || str.includes(BREAKPOINT[1]) || str.includes(BREAKPOINT[2]) || str.includes(BREAKPOINT[3]) ){
-        let [breakpoint,property] = str.split(":");
-        console.log(breakpoint,property);
-    }
-    console.log(str.includes(BREAKPOINT[0]),str.includes(BREAKPOINT[1]), str.includes(BREAKPOINT[2]),str.includes(BREAKPOINT[3]) )
-}
-
 let searchMargin=(str)=>{
     let MarginList = [];
     let classNames = getClassList(str);
@@ -248,21 +240,12 @@ let searchBreakpoint=(str)=>{
     classNames.forEach((value)=>{
         let sp = splitClassName(value);
         if (sp[0].includes(":")){
-            // console.log(sp)
-            // console.log(sp[0])
             let bp = sp[0].split(":");
-            // console.log(bp)
-
             if (bp[0]===BREAKPOINT[0] || bp[0]===BREAKPOINT[1] || bp[0]===BREAKPOINT[2] || bp[0]===BREAKPOINT[3]){
-                console.log("-----")
-                console.log(bp[0]+":"+bp[1]+"-"+sp[1])
-                console.log([...bp.concat(sp[1])])
-                console.log("-----")
                 // sm:m-5 lg:m-2
                 breakpoint.push([...bp.concat(sp[1])]);
             }
         }
-
     });
     return breakpoint;
 }
@@ -321,87 +304,6 @@ let finalOverflow = (str)=>{
     return null;
 }
 
-// Example: generateBreakpointCategories("lg:mx-2 lg:ml-4  sm:p-5")   /result:  [Array(0), Array(1), Array(0), Array(2)] //([3]=>[['mx', '2'],['mx', '2']]
-let generateBreakpointCategories=(str)=>{
-    let data = searchBreakpoint(str);
-    let xs=[],sm=[],md=[],lg=[];
-    data.forEach(value => {
-        if (value[0]==="xs"){
-            xs.push([value[1],value[2]]);
-        }else if (value[0]==="sm"){
-            sm.push([value[1],value[2]]);
-        }else if (value[0]==="md"){
-            md.push([value[1],value[2]]);
-        }else if (value[0]==="lg"){
-            lg.push([value[1],value[2]]);
-        }
-    })
-    return [xs,sm,md,lg];
-}
-let finalBreakpoint = (str)=> {
-    return generateBreakpointCategories(str);
-}
-//
-// let finalBreakpoint = (str)=>{
-//     let sumStr="";
-//     let Breakpoint=search(str)[4];
-//     // console.log(Breakpoint)
-//     Breakpoint.forEach((value) => {
-//         // console.log(value[1]+"-"+value[2])
-//         if (value[1]==="m" || value[1]==="mx" || value[1]==="my" || value[1]==="mr" || value[1]==="ml" || value[1]==="mt" || value[1]==="mb"){
-//             let [t,b,r,l] = convertMarginTO([[value[1],value[2]]]);
-//             let margin = convertTOMargin(t, b, r, l);
-//             sumStr+=value[0]+":"+value[1]+"-"+value[2]+" ";
-//         }
-//         if (value[1]==="p"){
-//             let [t,b,r,l] = convertPaddingTO([[value[1],value[2]]]);
-//             let padding = convertTOPadding(t, b, r, l);
-//             sumStr+=value[0]+":"+value[1]+"-"+value[2]+" ";
-//         }
-//     })
-//     // if (Overflow.length>0){
-//     //     let o= getOverflow(Overflow);
-//     //     let dataXY=  convertOverflowTO([o.join(" ")]);
-//     //     return  convertTOOverflow(dataXY[0],dataXY[1])
-//     // }
-//     return sumStr.trim();
-// }
-/*
-let testCode=(classNames)=>{
-    let margin=finalMargin(classNames);
-    let padding=finalPadding(classNames);
-    let display=finalDisplay(classNames);
-    let overflow=finalOverflow(classNames);
-    let str="";
-    let breakpoint=searchBreakpoint(classNames);
-
-    // Margin
-    let strM="";
-    margin.forEach(value => {
-        strM+=value[0]+"-"+value[1]+" ";
-    });
-    strM.trim();
-
-    // Padding
-    let strP="";
-    padding.forEach(value => {
-        strP+=value[0]+"-"+value[1]+" ";
-    });
-    strP.trim();
-
-    // Breakpoint
-    let strBP="";
-    breakpoint.forEach(value => {
-        strBP+=value[0]+"-"+value[1]+"-"+value[2]+" ";
-    })
-    strBP.trim();
-
-
-    str=strM+" "+strP+" "+display+" "+overflow+" "+strBP;
-    console.log(str)
-
-}*/
-
 function purgeClassNames(...classNames){
     classNames=classNames.join(" ");
     let margin=finalMargin(classNames);
@@ -442,17 +344,10 @@ function purgeClassNames(...classNames){
         strBP+=value[0]+":"+value[1]+"-"+value[2]+" ";
     })
     strBP.trim();
-
-
     str=strM+" "+strP+" "+display+" "+overflow+" "+strBP;
-
-    console.log(breakpoint)
-
     return str;
 }
 
 document.getElementById('input').onkeyup = function(){
     document.getElementById('output').innerHTML = purgeClassNames(...this.value.trim().split(/\s+/));
-    // console.log(this.value.trim().split(/\s+/))
 };
-//Test
