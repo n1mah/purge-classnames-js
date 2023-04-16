@@ -2,8 +2,7 @@ const MARGIN=['m','ml','mr','mb','mt','my','mx'];
 const PADDING=['p','pl','pr','pb','pt','py','px'];
 const DISPLAY=["d-flex","d-inline","d-inline-flex","d-block","d-inline-block"];
 const OVERFLOW = "overflow";
-let overflowValue = ["hidden","visible","scroll","auto","none"];
-let breakpoint=["xs","sm","md","lg"];
+const BREAKPOINT=["xs","sm","md","lg"];
 
 let splitClassName=(className)=>{
     className = className.split("-");
@@ -13,6 +12,8 @@ let getClassList=(str)=>{
     str = str.split(" ");
     return [...str];
 }
+
+// Example: convertMarginTO([['mx',2],['mt',10]])  //Result:    [10, undefined, 2, 2]
 let convertMarginTO=(marginListClass)=>{
     let mb,mt,mr,ml;
     marginListClass.forEach((value) => {
@@ -42,9 +43,15 @@ let convertMarginTO=(marginListClass)=>{
     });
     return [mt,mb,mr,ml];
 }
+
+// Example: convertTOMargin(convertTOMargin(10,10,2,2))     //result [['my', 10],['mx', 2]]
+// Example: convertTOMargin(convertTOMargin(3,10,2,2))     //result [['mt', 3],['mx', 2],['mb', 10]]
 let convertTOMargin=(mt=0,mb=0,mr=0,ml=0)=>{
     if (mt===mb && mr===ml && mt===mr){
-        return ["m",mt];
+        if (mt===0){
+            return  null;
+        }
+        return [["m",mt]];
     }else if (mt===mb && mr===ml){
         return [["my",mt],["mx",mr]];
     }else if(mt===mb || mr===ml){
@@ -87,9 +94,9 @@ let convertPaddingTO=(paddingListClass)=>{
     });
     return [pt,pb,pr,pl];
 }
-let convertTOPadding=(pt=0,pb=0,pr=0,pl=0)=>{
+let     convertTOPadding=(pt=0,pb=0,pr=0,pl=0)=>{
     if (pt===pb && pr===pl && pt===pr){
-        return ["p",pt];
+        return [["p",pt]];
     }else if (pt===pb && pr===pl){
         return [["py",pt],["px",pr]];
     }else if(pt===pb || pr===pl){
@@ -141,11 +148,10 @@ let getOverflow=(strList)=>{
     let overflow=[];
     data.forEach(value=>{
         let prop=splitClassName(value);
-        if ("overflow".includes(prop[0])) {
+        if (OVERFLOW.includes(prop[0])) {
             overflow.push(value)
         }
     });
-    // console.log(overflow)
     return overflow;
 }
 
@@ -172,18 +178,274 @@ let convertOverflowTO=(OverflowStrClass)=>{
 
 let convertTOOverflow=(x=[],y=[])=>{
     if (x[2]===y[2]){
-        return [[OVERFLOW,x[2]]];
+        return OVERFLOW+"-"+x[2];
     }else {
-        return [x,y];
+        return [x.join("-"),y.join("-")].join(" ");
     }
 }
 
+let getBreakpoints=(str)=>{
+    if (str.includes(BREAKPOINT[0]) || str.includes(BREAKPOINT[1]) || str.includes(BREAKPOINT[2]) || str.includes(BREAKPOINT[3]) ){
+        let [breakpoint,property] = str.split(":");
+        console.log(breakpoint,property);
+    }
+    console.log(str.includes(BREAKPOINT[0]),str.includes(BREAKPOINT[1]), str.includes(BREAKPOINT[2]),str.includes(BREAKPOINT[3]) )
+}
+
+let searchMargin=(str)=>{
+    let MarginList = [];
+    let classNames = getClassList(str);
+    classNames.forEach((value)=>{
+        let sp = splitClassName(value);
+        if (sp[0]==="m" || sp[0]==="mx" || sp[0]==="my" || sp[0]==="mr" || sp[0]==="ml" || sp[0]==="mt" || sp[0]==="mb"){
+            MarginList.push([sp[0],sp[1]])
+        }
+    });
+    return MarginList;
+}
+
+let searchPadding=(str)=>{
+    let PaddingList = [];
+    let classNames = getClassList(str);
+    classNames.forEach((value)=>{
+        let sp = splitClassName(value);
+        if (sp[0]==="p" || sp[0]==="px" || sp[0]==="py" || sp[0]==="pr" || sp[0]==="pl" || sp[0]==="pt" || sp[0]==="pb"){
+            PaddingList.push([sp[0],sp[1]])
+        }
+    });
+    return PaddingList;
+}
+let searchDisplay=(str)=>{
+    let displayList = [];
+    let displayStr = "";
+    let classNames = getClassList(str);
+    classNames.forEach((value)=>{
+        let sp = splitClassName(value);
+        if (sp[0]==="d"){
+            displayList.push([sp[0],sp[1]]);
+            displayStr+=(sp[0]+"-"+sp[1]+ " ");
+        }
+    });
+    return [displayList,(displayStr.trim())];
+}
+let searchOverflow=(str)=>{
+    let overflowList = [];
+    let overflowStr = "";
+    let classNames = getClassList(str);
+    classNames.forEach((value)=>{
+        let sp = splitClassName(value);
+        if (sp[0]===OVERFLOW){
+            overflowList.push([...sp])
+            overflowStr+=sp.join("-")+" ";
+        }
+    });
+    return [overflowList,overflowStr.trim()];
+}
+
+let searchBreakpoint=(str)=>{
+    let breakpoint = [];
+    let classNames = getClassList(str);
+    classNames.forEach((value)=>{
+        let sp = splitClassName(value);
+        if (sp[0].includes(":")){
+            let bp = sp[0].split(":")
+            if (bp[0]===BREAKPOINT[0] || bp[0]===BREAKPOINT[1] || bp[0]===BREAKPOINT[2] || bp[0]===BREAKPOINT[3]){
+                breakpoint.push([...bp.concat(sp[1])]);
+            }
+        }
+
+    });
+    return breakpoint;
+}
+
+
+
+let search= str =>{
+   return [ searchMargin(str),
+            searchPadding(str),
+            searchDisplay(str),
+            searchOverflow(str),
+            searchBreakpoint(str) ];
+}
+
+let finalMargin = (str)=>{
+    let Margins=search(str)[0];
+    let [mt,mb,mr,ml] =convertMarginTO(Margins);
+    let margin = convertTOMargin(mt, mb, mr, ml);
+    if (margin !== null && margin.length>0 )
+    margin.forEach((value,index,array) => {
+        if (value[1]===0){
+            array.splice(index,1);
+        }
+    })
+    return margin ;
+}
+let finalPadding = (str)=>{
+    let Paddings=search(str)[1];
+    let padding=null
+    if (Paddings.length>0) {
+        let [pt, pb, pr, pl] = convertPaddingTO(Paddings);
+        padding = convertTOPadding(pt, pb, pr, pl);
+        padding.forEach((value, index, array) => {
+            if (value[1] === 0) {
+                array.splice(index, 1);
+            }
+        })
+    }
+    return padding ;
+}
+
+let finalDisplay = (str)=>{
+    let Display=search(str)[2][1];
+    if (Display.length>0)
+        return getLastDisplay(Display);
+    return null;
+}
+
+let finalOverflow = (str)=>{
+    let Overflow=search(str)[3][1];
+    if (Overflow.length>0){
+        let o= getOverflow(Overflow);
+        let dataXY=  convertOverflowTO([o.join(" ")]);
+        return  convertTOOverflow(dataXY[0],dataXY[1])
+    }
+    return null;
+}
+
+// Example: generateBreakpointCategories("lg:mx-2 lg:ml-4  sm:p-5")   /result:  [Array(0), Array(1), Array(0), Array(2)] //([3]=>[['mx', '2'],['mx', '2']]
+let generateBreakpointCategories=(str)=>{
+    let data = searchBreakpoint(str);
+    let xs=[],sm=[],md=[],lg=[];
+    data.forEach(value => {
+        if (value[0]==="xs"){
+            xs.push([value[1],value[2]]);
+        }else if (value[0]==="sm"){
+            sm.push([value[1],value[2]]);
+        }else if (value[0]==="md"){
+            md.push([value[1],value[2]]);
+        }else if (value[0]==="lg"){
+            lg.push([value[1],value[2]]);
+        }
+    })
+    return [xs,sm,md,lg];
+}
+let finalBreakpoint = (str)=> {
+    return generateBreakpointCategories(str);
+}
+//
+// let finalBreakpoint = (str)=>{
+//     let sumStr="";
+//     let Breakpoint=search(str)[4];
+//     // console.log(Breakpoint)
+//     Breakpoint.forEach((value) => {
+//         // console.log(value[1]+"-"+value[2])
+//         if (value[1]==="m" || value[1]==="mx" || value[1]==="my" || value[1]==="mr" || value[1]==="ml" || value[1]==="mt" || value[1]==="mb"){
+//             let [t,b,r,l] = convertMarginTO([[value[1],value[2]]]);
+//             let margin = convertTOMargin(t, b, r, l);
+//             sumStr+=value[0]+":"+value[1]+"-"+value[2]+" ";
+//         }
+//         if (value[1]==="p"){
+//             let [t,b,r,l] = convertPaddingTO([[value[1],value[2]]]);
+//             let padding = convertTOPadding(t, b, r, l);
+//             sumStr+=value[0]+":"+value[1]+"-"+value[2]+" ";
+//         }
+//     })
+//     // if (Overflow.length>0){
+//     //     let o= getOverflow(Overflow);
+//     //     let dataXY=  convertOverflowTO([o.join(" ")]);
+//     //     return  convertTOOverflow(dataXY[0],dataXY[1])
+//     // }
+//     return sumStr.trim();
+// }
+/*
+let testCode=(classNames)=>{
+    let margin=finalMargin(classNames);
+    let padding=finalPadding(classNames);
+    let display=finalDisplay(classNames);
+    let overflow=finalOverflow(classNames);
+    let str="";
+    let breakpoint=searchBreakpoint(classNames);
+
+    // Margin
+    let strM="";
+    margin.forEach(value => {
+        strM+=value[0]+"-"+value[1]+" ";
+    });
+    strM.trim();
+
+    // Padding
+    let strP="";
+    padding.forEach(value => {
+        strP+=value[0]+"-"+value[1]+" ";
+    });
+    strP.trim();
+
+    // Breakpoint
+    let strBP="";
+    breakpoint.forEach(value => {
+        strBP+=value[0]+"-"+value[1]+"-"+value[2]+" ";
+    })
+    strBP.trim();
+
+
+    str=strM+" "+strP+" "+display+" "+overflow+" "+strBP;
+    console.log(str)
+
+}*/
+
 function purgeClassNames(...classNames){
-    // TODO write your code here
-    return classNames;
+    classNames=classNames.join(" ");
+    console.log("-----")
+    let margin=finalMargin(classNames);
+    let padding=finalPadding(classNames);
+    let display=finalDisplay(classNames);
+    let overflow=finalOverflow(classNames);
+    let str="";
+    let breakpoint=searchBreakpoint(classNames);
+
+    // Display
+    if (display===null){
+        display="";
+    }
+    // Overflow
+    if (overflow===null){
+        overflow="";
+    }
+
+    // Margin
+    let strM="";
+    if (margin !== null && margin.length>0)
+    margin.forEach(value => {
+        console.log(value)
+        strM+=value[0]+"-"+value[1]+" ";
+        console.log("++")
+    });
+    strM.trim();
+
+    // Padding
+    let strP="";
+    if (padding !== null && padding.length>0)
+    padding.forEach(value => {
+        strP+=value[0]+"-"+value[1]+" ";
+    });
+    strP.trim();
+
+    // Breakpoint
+    let strBP="";
+    breakpoint.forEach(value => {
+        strBP+=value[0]+"-"+value[1]+"-"+value[2]+" ";
+    })
+    strBP.trim();
+
+
+    str=strM+" "+strP+" "+display+" "+overflow+" "+strBP;
+    console.log("----")
+
+    return str;
 }
 
 document.getElementById('input').onkeyup = function(){
     document.getElementById('output').innerHTML = purgeClassNames(...this.value.trim().split(/\s+/));
+    // console.log(this.value.trim().split(/\s+/))
 };
 //Test
