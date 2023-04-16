@@ -310,7 +310,7 @@ function purgeClassNames(...classNames){
     let padding=finalPadding(classNames);
     let display=finalDisplay(classNames);
     let overflow=finalOverflow(classNames);
-    let str="";
+    let str;
     let breakpoint=searchBreakpoint(classNames);
 
     // Display
