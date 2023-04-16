@@ -58,7 +58,7 @@ let convertTOMargin=(mt=0,mb=0,mr=0,ml=0)=>{
         if (mt===mb){
             return [["my",mt],["mr",mr],["ml",ml]];
         }else{
-            return [["mx",mr],["mt",mt],["mb",mb]];
+            return [["mt",mt],["mx",mr],["mb",mb]];
 
         }
     }else {
@@ -103,7 +103,7 @@ let     convertTOPadding=(pt=0,pb=0,pr=0,pl=0)=>{
         if (pt===pb){
             return [["py",pt],["pr",pr],["pl",pl]];
         }else{
-            return [["px",pr],["pt",pt],["pb",pb]];
+            return [["pt",pt],["px",pr],["pb",pb]];
 
         }
     }else {
@@ -248,8 +248,17 @@ let searchBreakpoint=(str)=>{
     classNames.forEach((value)=>{
         let sp = splitClassName(value);
         if (sp[0].includes(":")){
-            let bp = sp[0].split(":")
+            // console.log(sp)
+            // console.log(sp[0])
+            let bp = sp[0].split(":");
+            // console.log(bp)
+
             if (bp[0]===BREAKPOINT[0] || bp[0]===BREAKPOINT[1] || bp[0]===BREAKPOINT[2] || bp[0]===BREAKPOINT[3]){
+                console.log("-----")
+                console.log(bp[0]+":"+bp[1]+"-"+sp[1])
+                console.log([...bp.concat(sp[1])])
+                console.log("-----")
+                // sm:m-5 lg:m-2
                 breakpoint.push([...bp.concat(sp[1])]);
             }
         }
@@ -395,7 +404,6 @@ let testCode=(classNames)=>{
 
 function purgeClassNames(...classNames){
     classNames=classNames.join(" ");
-    console.log("-----")
     let margin=finalMargin(classNames);
     let padding=finalPadding(classNames);
     let display=finalDisplay(classNames);
@@ -416,9 +424,7 @@ function purgeClassNames(...classNames){
     let strM="";
     if (margin !== null && margin.length>0)
     margin.forEach(value => {
-        console.log(value)
         strM+=value[0]+"-"+value[1]+" ";
-        console.log("++")
     });
     strM.trim();
 
@@ -433,13 +439,14 @@ function purgeClassNames(...classNames){
     // Breakpoint
     let strBP="";
     breakpoint.forEach(value => {
-        strBP+=value[0]+"-"+value[1]+"-"+value[2]+" ";
+        strBP+=value[0]+":"+value[1]+"-"+value[2]+" ";
     })
     strBP.trim();
 
 
     str=strM+" "+strP+" "+display+" "+overflow+" "+strBP;
-    console.log("----")
+
+    console.log(breakpoint)
 
     return str;
 }
